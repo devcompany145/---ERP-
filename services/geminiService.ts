@@ -1,8 +1,6 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Fix: Removed global instance to ensure dynamic API key injection works correctly for each request per guidelines.
-
 export const getAIInsights = async (context: any) => {
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -26,6 +24,30 @@ export const getAIInsights = async (context: any) => {
   } catch (error) {
     console.error("AI Insights Error:", error);
     return "عذراً، واجهت مشكلة في التحليل.";
+  }
+};
+
+export const generateDocumentContent = async (type: string, details: string) => {
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `بصفتك خبير قانوني وإداري في الشركات التقنية، قم بإنشاء ${type} بناءً على التفاصيل التالية:
+      ${details}
+      
+      المطلوب:
+      - صياغة احترافية جداً باللغة العربية الفصحى.
+      - تنظيم المحتوى في بنود واضحة (عناوين وفقرات).
+      - استخدام لغة قانونية/إدارية رصينة تناسب السوق السعودي والخليجي.
+      - التنسيق باستخدام Markdown.`,
+      config: {
+        temperature: 0.8,
+      }
+    });
+    return response.text;
+  } catch (error) {
+    console.error("Generation Error:", error);
+    return "عذراً، واجهت مشكلة أثناء توليد المستند.";
   }
 };
 
@@ -77,7 +99,7 @@ export const getStrategicAdvice = async (goals: any, risks: any) => {
       model: 'gemini-3-pro-preview',
       contents: `بصفتك CTO وستراتيجي نمو، حلل هذه الأهداف والمخاطر:
       الأهداف: ${JSON.stringify(goals)}
-      المخاطر: ${JSON.stringify(risks)}
+      Risks: ${JSON.stringify(risks)}
       
       اقترح 3 سيناريوهات للنمو المتسارع وخطة لتخفيف المخاطر التقنية.`,
       config: { temperature: 0.8 }
@@ -106,9 +128,6 @@ export const chatWithAssistant = async (message: string, history: any[]) => {
   }
 };
 
-/**
- * محاكاة جلب المهام من أدوات خارجية مثل Jira أو Asana
- */
 export const fetchExternalTasks = async (projectName: string, tool: 'Jira' | 'Asana') => {
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });

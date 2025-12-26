@@ -21,6 +21,7 @@ export interface TimeLog {
   endTime: string;
   duration: number; // بالساعات
   note?: string;
+  date: string;
 }
 
 export interface Task {
@@ -29,6 +30,7 @@ export interface Task {
   assignedTo: string;
   status: 'pending' | 'in_progress' | 'completed' | 'on_hold';
   hours: number;
+  estimatedHours?: number; // الساعات المقدرة للمهمة
   dueDate?: string;
   externalId?: string;
   externalSource?: 'Jira' | 'Asana' | 'GitHub';

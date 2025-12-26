@@ -31,7 +31,8 @@ import {
   FileSearch,
   User,
   Info,
-  ChevronLeft
+  ChevronLeft,
+  Download
 } from 'lucide-react';
 import { SupportTicket, KBArticle } from '../types';
 
@@ -87,6 +88,28 @@ const Support = () => {
       t.customerName?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [searchTerm]);
+
+  const exportTicketsToCSV = () => {
+    const headers = ["المعرف", "العميل", "الموضوع", "الحالة", "الأولوية", "التاريخ"];
+    const rows = filteredTickets.map(t => [
+      t.id,
+      t.customerName || 'غير معروف',
+      t.subject,
+      statusLabels[t.status] || t.status,
+      priorityLabels[t.priority] || t.priority,
+      t.date
+    ]);
+    
+    const csvContent = "\uFEFF" + [headers, ...rows].map(row => row.map(val => `"${val}"`).join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `تذاكر_الدعم_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const filteredArticles = useMemo(() => {
     const term = searchTerm.toLowerCase();
@@ -180,6 +203,12 @@ const Support = () => {
                   />
                 </div>
                 <div className="flex gap-2 w-full md:w-auto">
+                   <button 
+                    onClick={exportTicketsToCSV}
+                    className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-black text-slate-600 hover:bg-slate-50 transition-all shadow-sm"
+                   >
+                     <Download size={16} /> تصدير CSV
+                   </button>
                    <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-3 border border-slate-200 rounded-2xl text-xs font-black text-slate-600 hover:bg-slate-50 transition-all">
                      <Filter size={16} /> تصفية
                    </button>
@@ -618,6 +647,13 @@ const PriorityBadge = ({ priority }: { priority: string }) => {
   };
   const labels: any = { urgent: 'حرجة جداً', high: 'عالية الأولوية', medium: 'متوسطة', low: 'منخفضة' };
   return <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase border ${colors[priority]}`}>{labels[priority]}</span>;
+};
+
+const priorityLabels: Record<string, string> = {
+  urgent: 'حرجة جداً',
+  high: 'عالية الأولوية',
+  medium: 'متوسطة',
+  low: 'منخفضة'
 };
 
 const statusLabels: Record<string, string> = {

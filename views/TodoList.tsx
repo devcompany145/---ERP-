@@ -48,6 +48,8 @@ const initialTasks: TodoTask[] = [
   { id: '5', title: 'تحسين أداء واجهة ERP', category: 'مشروع', priority: 'medium', dueDate: '2023-11-29', completed: false, trackedHours: 1.8 },
   { id: '6', title: 'مهمة متأخرة قديمة', category: 'عام', priority: 'high', dueDate: '2023-11-10', completed: false, trackedHours: 0 },
   { id: '7', title: 'تحضير عرض اليوم', category: 'عميل', priority: 'high', dueDate: new Date().toISOString().split('T')[0], completed: false, trackedHours: 0 },
+  { id: '8', title: 'Follow up on AI feature suggestions', category: 'عام', priority: 'medium', dueDate: '2023-12-15', completed: false, trackedHours: 0 },
+  { id: '9', title: 'تحليل تكاليف الحوسبة السحابية', category: 'مشروع', priority: 'medium', dueDate: '2023-12-10', completed: false, trackedHours: 0 },
 ];
 
 type GroupMode = 'flat' | 'priority' | 'date';
@@ -210,9 +212,12 @@ const TodoList = () => {
             <CheckCircle2 size={16} />
           </button>
           <div className="flex-1 min-w-0">
-             <p className={`text-sm font-bold truncate transition-all ${task.completed ? 'text-slate-400 line-through decoration-2' : 'text-slate-700'}`}>
-               {task.title}
-             </p>
+             <div className="flex items-center gap-2">
+                <p className={`text-sm font-bold truncate transition-all ${task.completed ? 'text-slate-400 line-through decoration-2' : 'text-slate-700'}`}>
+                  {task.title}
+                </p>
+                {task.title.toLowerCase().includes('ai') && <Sparkles size={14} className="text-blue-500" />}
+             </div>
              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
                 <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase flex items-center gap-1 shrink-0 ${
                   task.priority === 'high' ? 'bg-rose-100 text-rose-600' : task.priority === 'medium' ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600'

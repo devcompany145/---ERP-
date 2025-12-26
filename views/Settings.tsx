@@ -17,19 +17,37 @@ import {
   Mail,
   Building,
   RefreshCw,
-  Cpu
+  Cpu,
+  Check
 } from 'lucide-react';
 
 const SettingsView = () => {
   const [activeTab, setActiveTab] = useState<'profile' | 'company' | 'security' | 'cloud' | 'notifications'>('profile');
   const [isSaving, setIsSaving] = useState(false);
+  const [isProfileSaving, setIsProfileSaving] = useState(false);
 
-  const handleSave = () => {
+  // Profile State
+  const [profile, setProfile] = useState({
+    name: 'أحمد محمد',
+    role: 'المدير التنفيذي',
+    email: 'ahmed@tech-sa.com',
+    phone: '05XXXXXXXX'
+  });
+
+  const handleGlobalSave = () => {
     setIsSaving(true);
     setTimeout(() => {
       setIsSaving(false);
-      alert('تم حفظ الإعدادات بنجاح!');
+      alert('تم حفظ كافة الإعدادات بنجاح!');
     }, 1000);
+  };
+
+  const handleProfileSave = () => {
+    setIsProfileSaving(true);
+    setTimeout(() => {
+      setIsProfileSaving(false);
+      // هنا يمكن إضافة منطق الحفظ في localStorage أو API
+    }, 800);
   };
 
   const tabs = [
@@ -48,7 +66,7 @@ const SettingsView = () => {
           <p className="text-slate-500 font-medium">تحكم في هويتك الرقمية، صلاحيات الفريق، وتكاملات الـ Cloud.</p>
         </div>
         <button 
-          onClick={handleSave}
+          onClick={handleGlobalSave}
           disabled={isSaving}
           className="px-8 py-3 bg-blue-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-blue-100 hover:bg-blue-700 transition-all flex items-center gap-3 disabled:opacity-50"
         >
@@ -80,42 +98,85 @@ const SettingsView = () => {
         <div className="flex-1 p-8 md:p-12 overflow-y-auto no-scrollbar">
           {activeTab === 'profile' && (
             <div className="space-y-8 animate-in slide-in-from-bottom-2">
-              <div className="flex items-center gap-6 pb-8 border-b border-slate-50">
-                <div className="relative group">
-                   <img src="https://picsum.photos/seed/admin/120/120" className="w-24 h-24 rounded-3xl object-cover ring-4 ring-slate-50 group-hover:opacity-80 transition-all" />
-                   <button className="absolute bottom-[-8px] right-[-8px] p-2 bg-white rounded-xl shadow-lg border border-slate-100 text-blue-600 hover:scale-110 transition-transform">
-                      <RefreshCw size={16} />
-                   </button>
+              <div className="flex items-center justify-between pb-8 border-b border-slate-50">
+                <div className="flex items-center gap-6">
+                  <div className="relative group">
+                    <img src="https://picsum.photos/seed/admin/120/120" className="w-24 h-24 rounded-3xl object-cover ring-4 ring-slate-50 group-hover:opacity-80 transition-all shadow-sm" />
+                    <button className="absolute bottom-[-8px] right-[-8px] p-2 bg-white rounded-xl shadow-lg border border-slate-100 text-blue-600 hover:scale-110 transition-transform">
+                        <RefreshCw size={16} />
+                    </button>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-800 tracking-tight">{profile.name}</h3>
+                    <p className="text-sm text-slate-500 font-bold">{profile.role} • {profile.email}</p>
+                  </div>
                 </div>
-                <div>
-                   <h3 className="text-xl font-bold text-slate-800">أحمد محمد</h3>
-                   <p className="text-sm text-slate-500">المدير التنفيذي • ahmed@tech-sa.com</p>
+                <div className="hidden md:block">
+                  <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-emerald-100">حساب موثق</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">الاسم الكامل</label>
-                  <input defaultValue="أحمد محمد" className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">الاسم الكامل</label>
+                  <input 
+                    type="text"
+                    value={profile.name}
+                    onChange={(e) => setProfile({...profile, name: e.target.value})}
+                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/10 focus:bg-white focus:border-blue-500 transition-all" 
+                  />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">المسمى الوظيفي</label>
-                  <input defaultValue="المدير التنفيذي" className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">المسمى الوظيفي</label>
+                  <input 
+                    type="text"
+                    value={profile.role}
+                    onChange={(e) => setProfile({...profile, role: e.target.value})}
+                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/10 focus:bg-white focus:border-blue-500 transition-all" 
+                  />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">البريد الإلكتروني</label>
-                  <div className="relative">
-                     <Mail size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300" />
-                     <input defaultValue="ahmed@tech-sa.com" className="w-full pr-12 pl-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">البريد الإلكتروني</label>
+                  <div className="relative group">
+                     <Mail size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
+                     <input 
+                       type="email"
+                       value={profile.email}
+                       onChange={(e) => setProfile({...profile, email: e.target.value})}
+                       className="w-full pr-12 pl-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/10 focus:bg-white focus:border-blue-500 transition-all" 
+                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">رقم الجوال</label>
-                  <div className="relative">
-                     <Smartphone size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300" />
-                     <input defaultValue="05XXXXXXXX" dir="ltr" className="w-full pr-12 pl-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500 transition-all text-right" />
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">رقم الجوال</label>
+                  <div className="relative group">
+                     <Smartphone size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
+                     <input 
+                       type="text"
+                       value={profile.phone}
+                       dir="ltr"
+                       onChange={(e) => setProfile({...profile, phone: e.target.value})}
+                       className="w-full pr-12 pl-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/10 focus:bg-white focus:border-blue-500 transition-all text-right" 
+                     />
                   </div>
                 </div>
+              </div>
+
+              <div className="pt-8 mt-4 border-t border-slate-50 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs text-slate-400 font-bold">
+                   <Shield size={14} className="text-blue-500" /> معلوماتك الشخصية مشفرة ومحمية.
+                </div>
+                <button 
+                  onClick={handleProfileSave}
+                  disabled={isProfileSaving}
+                  className="px-10 py-4 bg-slate-900 text-white rounded-2xl font-black text-sm shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all active:scale-95 flex items-center gap-3 disabled:opacity-70"
+                >
+                  {isProfileSaving ? (
+                    <RefreshCw size={18} className="animate-spin" />
+                  ) : (
+                    <>تحديث الملف الشخصي <Check size={18} /></>
+                  )}
+                </button>
               </div>
             </div>
           )}

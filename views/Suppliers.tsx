@@ -23,7 +23,9 @@ import {
   ArrowUpRight,
   Wallet,
   Briefcase,
-  ShieldCheck
+  ShieldCheck,
+  // Fix: Added missing Mail import from lucide-react
+  Mail
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -149,7 +151,7 @@ const SupplierDetail = ({ supplier, onBack }: { supplier: Supplier, onBack: () =
                 <div className="space-y-6 animate-in fade-in duration-500">
                   <div className="overflow-hidden border border-slate-100 rounded-3xl bg-white">
                     <table className="w-full text-right text-sm">
-                      <thead className="bg-slate-50 text-slate-500 font-black uppercase text-[10px] tracking-widest border-b border-slate-100">
+                      <thead className="bg-slate-50 text-slate-500 font-bold font-black uppercase text-[10px] tracking-widest border-b border-slate-100">
                         <tr>
                           <th className="px-8 py-5">المصروف / البند</th>
                           <th className="px-8 py-5">التصنيف</th>

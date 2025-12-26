@@ -4,16 +4,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>تكنولوجي ERP</title>
+    <title>تكنولوجي ERP | نظام الإدارة الذكي</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+      :root {
+        --primary: #2563eb;
+        --primary-light: #eff6ff;
+        --primary-glow: rgba(37, 99, 235, 0.1);
+        --surface: #ffffff;
+        --background: #f8fafc;
+      }
+      
       body {
         font-family: 'Cairo', sans-serif;
-        background-color: #f8fafc;
-        scroll-behavior: smooth;
+        background-color: var(--background);
+        color: #0f172a;
         overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
       }
+
+      /* تحسين شريط التمرير */
       ::-webkit-scrollbar {
         width: 6px;
       }
@@ -21,52 +32,91 @@
         background: transparent;
       }
       ::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
+        background: #e2e8f0;
         border-radius: 10px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
+        background: #cbd5e1;
       }
 
-      /* تعريفات الحركات البسيطة المدعومة برمجياً */
-      .animate-in {
-        animation-duration: 500ms;
-        animation-fill-mode: both;
-      }
-      .fade-in {
-        animation-name: fadeIn;
-      }
-      .slide-in-from-bottom-4 {
-        animation-name: slideInFromBottom;
+      /* بطاقات عصرية بظلال ناعمة */
+      .glass-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
-      @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
+      .glass-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.08);
+        border-color: var(--primary-glow);
       }
-      @keyframes slideInFromBottom {
-        from { transform: translateY(1rem); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
+
+      /* تأثيرات حركية متقدمة */
+      @keyframes soft-float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+      }
+      .animate-soft-float {
+        animation: soft-float 5s ease-in-out infinite;
+      }
+
+      .page-transition {
+        animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* تخصيص حقول الإدخال لتجربة UX أفضل */
+      input, select, textarea {
+        transition: all 0.2s ease;
+      }
+      input:focus, select:focus, textarea:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 4px var(--primary-glow) !important;
+        background-color: white !important;
+      }
+
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      /* تدرجات لونية ناعمة */
+      .bg-mesh {
+        background-color: #f8fafc;
+        background-image: 
+          radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.05) 0px, transparent 50%),
+          radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%);
       }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
-    "recharts": "https://esm.sh/recharts@^3.6.0",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
-    "react-router-dom": "https://esm.sh/react-router-dom@^7.11.0",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
-    "vite": "https://esm.sh/vite@^7.3.0",
-    "framer-motion": "https://esm.sh/framer-motion@^11.15.0"
-  }
-}
-</script>
-</head>
-  <body>
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@^19.2.3",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+        "react/": "https://esm.sh/react@^19.2.3/",
+        "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+        "recharts": "https://esm.sh/recharts@^3.6.0",
+        "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+        "react-router-dom": "https://esm.sh/react-router-dom@^7.11.0",
+        "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+        "vite": "https://esm.sh/vite@^7.3.0",
+        "framer-motion": "https://esm.sh/framer-motion@^11.15.0"
+      }
+    }
+    </script>
+  </head>
+  <body class="bg-mesh">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
