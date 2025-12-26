@@ -49,23 +49,31 @@ const mockContacts: Contact[] = [
   { id: '4', name: 'عمر ياسين', role: 'مهندس سحابي', avatar: 'https://picsum.photos/seed/omar/100/100', status: 'online', lastMessage: 'سأقوم بمراجعة سيرفرات الاختبار الآن', time: '11:00 ص' },
 ];
 
-const mockMessagesData: Record<string, Message[]> = {
+const initialMessages: Record<string, Message[]> = {
   '1': [
     { id: 'm1', senderId: '1', text: 'صباح الخير أحمد، هل راجعت طلب الدمج الأخير؟', time: '09:00 ص', isMe: false, status: 'read', type: 'text', avatar: 'https://picsum.photos/seed/sara/100/100' },
     { id: 'm2', senderId: 'me', text: 'أهلاً سارة، نعم يبدو ممتازاً، سأقوم باعتماده بعد قليل.', time: '09:05 ص', isMe: true, status: 'read', type: 'text' },
-    { id: 'm3', senderId: '1', text: 'رائع، سأبدأ العمل على ميزة الدردشة إذاً.', time: '09:10 ص', isMe: false, status: 'read', type: 'text', avatar: 'https://picsum.photos/seed/sara/100/100' },
-    { id: 'm4', senderId: '1', text: 'تم رفع التحديث الجديد للـ API', time: '10:30 ص', isMe: false, status: 'read', type: 'text', avatar: 'https://picsum.photos/seed/sara/100/100' },
+  ],
+  '2': [
+    { id: 'm21', senderId: '2', text: 'أهلاً أحمد، نحتاج لمراجعة أداء النسخة الأخيرة.', time: '08:15 ص', isMe: false, status: 'read', type: 'text', avatar: 'https://picsum.photos/seed/mo/100/100' },
+  ],
+  '3': [
+    { id: 'm31', senderId: '3', text: 'تم تحديث ملفات التصميم في Figma.', time: 'أمس', isMe: false, status: 'read', type: 'text', avatar: 'https://picsum.photos/seed/layla/100/100' },
+  ],
+  '4': [
+    { id: 'm41', senderId: '4', text: 'جاهز لمراجعة السيرفرات عند طلبكم.', time: '10:00 ص', isMe: false, status: 'read', type: 'text', avatar: 'https://picsum.photos/seed/omar/100/100' },
   ]
 };
 
 const InternalChat = () => {
   const [selectedContact, setSelectedContact] = useState<Contact>(mockContacts[0]);
-  const [messages, setMessages] = useState<Message[]>(mockMessagesData[mockContacts[0].id] || []);
+  const [allMessages, setAllMessages] = useState<Record<string, Message[]>>(initialMessages);
   const [inputText, setInputText] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom on new messages
+  const messages = allMessages[selectedContact.id] || [];
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({
@@ -89,10 +97,13 @@ const InternalChat = () => {
       type: 'text'
     };
 
-    setMessages(prev => [...prev, newMessage]);
+    const updatedMessages = {
+      ...allMessages,
+      [selectedContact.id]: [...(allMessages[selectedContact.id] || []), newMessage]
+    };
+    setAllMessages(updatedMessages);
     setInputText('');
 
-    // Simulate reply
     setTimeout(() => {
       const reply: Message = {
         id: (Date.now() + 1).toString(),
@@ -104,8 +115,11 @@ const InternalChat = () => {
         type: 'text',
         avatar: selectedContact.avatar
       };
-      setMessages(prev => [...prev, reply]);
-    }, 2000);
+      setAllMessages(prev => ({
+        ...prev,
+        [selectedContact.id]: [...(prev[selectedContact.id] || []), reply]
+      }));
+    }, 1500);
   };
 
   const filteredContacts = mockContacts.filter(c => c.name.includes(searchTerm));
@@ -135,10 +149,7 @@ const InternalChat = () => {
           {filteredContacts.map((contact) => (
             <button
               key={contact.id}
-              onClick={() => {
-                setSelectedContact(contact);
-                setMessages(mockMessagesData[contact.id] || []);
-              }}
+              onClick={() => setSelectedContact(contact)}
               className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all relative group ${
                 selectedContact.id === contact.id ? 'bg-blue-600 text-white shadow-xl shadow-blue-100' : 'hover:bg-white text-slate-700'
               }`}
@@ -199,7 +210,6 @@ const InternalChat = () => {
           ref={scrollRef}
           className="flex-1 overflow-y-auto p-6 md:p-10 space-y-8 bg-slate-50/40 no-scrollbar relative"
         >
-          {/* Subtle pattern background effect */}
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#2563eb 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
           
           <div className="max-w-4xl mx-auto space-y-8 relative z-10">
@@ -213,14 +223,12 @@ const InternalChat = () => {
                 >
                   <div className={`flex gap-4 max-w-[80%] md:max-w-[70%] ${msg.isMe ? 'flex-row-reverse' : ''}`}>
                     
-                    {/* Avatar for receiver */}
                     {!msg.isMe && (
                       <div className="w-10 h-10 rounded-xl bg-slate-200 shrink-0 overflow-hidden shadow-sm self-end">
                         <img src={msg.avatar || 'https://picsum.photos/seed/default/40/40'} className="w-full h-full object-cover" />
                       </div>
                     )}
                     
-                    {/* Message Bubble Container */}
                     <div className={`flex flex-col ${msg.isMe ? 'items-end' : 'items-start'}`}>
                       <div className={`p-4 rounded-[2rem] text-sm leading-relaxed shadow-sm transition-all hover:shadow-md ${
                         msg.isMe 
@@ -230,7 +238,6 @@ const InternalChat = () => {
                         <p className="font-medium whitespace-pre-wrap">{msg.text}</p>
                       </div>
                       
-                      {/* Metadata: Time and Status */}
                       <div className={`flex items-center gap-2 mt-2 px-1 text-[9px] font-black tracking-tighter uppercase ${
                         msg.isMe ? 'text-slate-400' : 'text-slate-400'
                       }`}>
@@ -239,7 +246,6 @@ const InternalChat = () => {
                       </div>
                     </div>
 
-                    {/* Simple placeholder for My Avatar when needed (optional design choice) */}
                     {msg.isMe && (
                       <div className="w-10 h-10 rounded-xl bg-slate-800 shrink-0 flex items-center justify-center text-white self-end shadow-sm">
                         <User size={20} />
@@ -295,17 +301,5 @@ const InternalChat = () => {
     </div>
   );
 };
-
-// Helper components
-const StatCard = ({ label, value, sub, icon: Icon, color }: any) => (
-  <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm group hover:border-blue-100 transition-all">
-    <div className={`w-12 h-12 rounded-2xl bg-${color}-50 text-${color}-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-      <Icon size={24} />
-    </div>
-    <p className="text-[10px] text-slate-400 font-black uppercase mb-1 tracking-widest">{label}</p>
-    <h3 className="text-2xl font-black text-slate-800">{value}</h3>
-    <p className="text-[10px] text-slate-500 mt-1 font-bold">{sub}</p>
-  </div>
-);
 
 export default InternalChat;

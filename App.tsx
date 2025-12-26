@@ -85,9 +85,10 @@ interface CategoryProps {
   onToggle: () => void;
   activePath: string;
   colorClass?: string;
+  onItemClick: () => void;
 }
 
-const SidebarCategory: React.FC<CategoryProps> = ({ label, icon: Icon, items, isOpen, onToggle, activePath, colorClass = "blue" }) => {
+const SidebarCategory: React.FC<CategoryProps> = ({ label, icon: Icon, items, isOpen, onToggle, activePath, colorClass = "blue", onItemClick }) => {
   const isAnyActive = items.some(item => activePath === item.to);
   
   return (
@@ -123,6 +124,7 @@ const SidebarCategory: React.FC<CategoryProps> = ({ label, icon: Icon, items, is
               <Link
                 key={item.to}
                 to={item.to}
+                onClick={onItemClick}
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold transition-all group ${
                   activePath === item.to 
                     ? `bg-${colorClass}-600 text-white shadow-lg shadow-${colorClass}-200/50` 
@@ -141,7 +143,7 @@ const SidebarCategory: React.FC<CategoryProps> = ({ label, icon: Icon, items, is
 };
 
 const AppLayout = () => {
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => localStorage.getItem('isLoggedIn') === 'true');
   const location = useLocation();
   const navigate = useNavigate();
@@ -157,6 +159,12 @@ const AppLayout = () => {
 
   const toggleCategory = (cat: string) => {
     setOpenCategories(prev => ({ ...prev, [cat]: !prev[cat] }));
+  };
+
+  const closeSidebarOnMobile = () => {
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
   };
 
   useEffect(() => {
@@ -242,6 +250,7 @@ const AppLayout = () => {
       <Routes>
         <Route path="/login" element={<Login onLogin={() => setIsAuthenticated(true)} />} />
         <Route path="/register" element={<Register />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );
   }
@@ -251,60 +260,68 @@ const AppLayout = () => {
       <div className="min-h-screen flex font-cairo text-right relative bg-[#f8fafc]" dir="rtl">
         <LiveBackground />
         
-        <aside 
-          className={`fixed inset-y-0 right-0 z-50 w-72 bg-white/70 backdrop-blur-3xl border-l border-slate-200/50 transition-all duration-500 ease-in-out lg:static lg:translate-x-0 ${
-            isSidebarOpen ? 'translate-x-0' : 'translate-x-full'
-          }`}
-        >
-          <div className="h-full flex flex-col pt-8">
-            <div className="flex items-center justify-between px-7 mb-12">
-              <Link to="/" className="flex items-center gap-4 group">
-                <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-blue-200 group-hover:scale-105 transition-transform">T</div>
-                <div>
-                  <h1 className="text-xl font-black text-slate-900 tracking-tighter leading-none mb-1">تكنولوجي</h1>
-                  <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest opacity-80">Enterprise ERP</p>
+        <AnimatePresence mode="wait">
+          {isSidebarOpen && (
+            <motion.aside 
+              initial={{ x: '100%', opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: '100%', opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 right-0 z-50 w-72 bg-white/70 backdrop-blur-3xl border-l border-slate-200/50 lg:static lg:translate-x-0"
+            >
+              <div className="h-full flex flex-col pt-8">
+                <div className="flex items-center justify-between px-7 mb-12">
+                  <Link to="/" onClick={closeSidebarOnMobile} className="flex items-center gap-4 group">
+                    <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-blue-200 group-hover:scale-105 transition-transform">T</div>
+                    <div>
+                      <h1 className="text-xl font-black text-slate-900 tracking-tighter leading-none mb-1">تكنولوجي</h1>
+                      <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest opacity-80">Enterprise ERP</p>
+                    </div>
+                  </Link>
+                  <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all"><X size={20}/></button>
                 </div>
-              </Link>
-              <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all"><X size={20}/></button>
-            </div>
 
-            <div className="flex-1 overflow-y-auto no-scrollbar pb-8 px-2">
-              {categories.map((cat) => (
-                <SidebarCategory 
-                  key={cat.id}
-                  label={cat.label}
-                  icon={cat.icon}
-                  items={cat.items}
-                  isOpen={openCategories[cat.id]}
-                  onToggle={() => toggleCategory(cat.id)}
-                  activePath={location.pathname}
-                  colorClass={cat.color}
-                />
-              ))}
-            </div>
+                <div className="flex-1 overflow-y-auto no-scrollbar pb-8 px-2">
+                  {categories.map((cat) => (
+                    <SidebarCategory 
+                      key={cat.id}
+                      label={cat.label}
+                      icon={cat.icon}
+                      items={cat.items}
+                      isOpen={openCategories[cat.id]}
+                      onToggle={() => toggleCategory(cat.id)}
+                      activePath={location.pathname}
+                      colorClass={cat.color}
+                      onItemClick={closeSidebarOnMobile}
+                    />
+                  ))}
+                </div>
 
-            <div className="p-6 bg-white/40 border-t border-slate-100">
-              <div className="space-y-2">
-                <Link
-                  to="/settings"
-                  className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all font-bold text-sm ${
-                    location.pathname === '/settings' ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-500 hover:bg-white'
-                  }`}
-                >
-                  <Settings size={18} />
-                  <span>إعدادات النظام</span>
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-rose-500 hover:bg-rose-50/50 transition-all font-bold text-sm"
-                >
-                  <LogOut size={18} />
-                  <span>تسجيل الخروج</span>
-                </button>
+                <div className="p-6 bg-white/40 border-t border-slate-100">
+                  <div className="space-y-2">
+                    <Link
+                      to="/settings"
+                      onClick={closeSidebarOnMobile}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all font-bold text-sm ${
+                        location.pathname === '/settings' ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-500 hover:bg-white'
+                      }`}
+                    >
+                      <Settings size={18} />
+                      <span>إعدادات النظام</span>
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-rose-500 hover:bg-rose-50/50 transition-all font-bold text-sm"
+                    >
+                      <LogOut size={18} />
+                      <span>تسجيل الخروج</span>
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </aside>
+            </motion.aside>
+          )}
+        </AnimatePresence>
 
         <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
           <header className="h-20 bg-white/40 backdrop-blur-2xl border-b border-slate-200/40 flex items-center justify-between px-8 sticky top-0 z-40">
@@ -382,6 +399,7 @@ const AppLayout = () => {
                   <Route path="/organization" element={<Organization />} />
                   <Route path="/ai-assistant" element={<AIAssistant />} />
                   <Route path="/settings" element={<SettingsView />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </motion.div>
             </AnimatePresence>

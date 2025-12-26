@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Search, 
@@ -47,9 +48,25 @@ import {
   Trash2,
   Edit3,
   Code2,
-  PlaneTakeoff
+  PlaneTakeoff,
+  BarChart as BarChartIcon,
+  GitCommit,
+  /* Added Star icon to imports */
+  Star
 } from 'lucide-react';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer, 
+  Legend,
+  Cell
+} from 'recharts';
 import { Employee, LeaveRequest } from '../types';
+import { motion } from 'framer-motion';
 
 const mockEmployeesData: Employee[] = [
   { 
@@ -110,6 +127,35 @@ const mockEmployeesData: Employee[] = [
       impactScore: 94, 
       gitCommits: 120 
     }
+  },
+  { 
+    id: '3', 
+    name: 'عبدالله العتيبي', 
+    role: 'مهندس DevOps', 
+    department: 'التطوير', 
+    status: 'نشط', 
+    email: 'abdullah@tech.com', 
+    phone: '0501234569', 
+    salary: 16000,
+    allowances: { housing: 4000, transport: 1000, other: 800 },
+    deductions: { insurance: 1600, tax: 0, other: 0 },
+    salaryHistory: [
+      { date: '2022-03-01', amount: 16000, reason: 'راتب البداية' }
+    ],
+    hourlyRate: 110, 
+    joinDate: '2022-03-01', 
+    docExpiry: '2025-01-15',
+    leaveBalance: 18, 
+    contractType: 'دوام كامل',
+    skills: ['Docker', 'K8s', 'AWS'],
+    productivity: { 
+      tasksCompleted: 78, 
+      tasksAssigned: 80, 
+      avgTaskTime: 5.8, 
+      milestonesReached: 12, 
+      impactScore: 91, 
+      gitCommits: 320 
+    }
   }
 ];
 
@@ -128,6 +174,149 @@ const StatItem = ({ label, value, sub, icon: Icon, color, isVisible = true }: an
       <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">{label}</p>
       <h3 className="text-xl font-black text-slate-800">{value}</h3>
       <p className="text-[10px] text-slate-500 mt-1">{sub}</p>
+    </div>
+  );
+};
+
+const PerformanceSection = ({ employees }: { employees: Employee[] }) => {
+  const performanceData = useMemo(() => {
+    return employees.map(emp => ({
+      name: emp.name,
+      impact: emp.productivity.impactScore,
+      commits: emp.productivity.gitCommits,
+      completion: Math.round((emp.productivity.tasksCompleted / emp.productivity.tasksAssigned) * 100),
+      color: emp.productivity.impactScore > 90 ? '#2563eb' : '#6366f1'
+    }));
+  }, [employees]);
+
+  const avgImpact = Math.round(employees.reduce((acc, e) => acc + e.productivity.impactScore, 0) / employees.length);
+  const totalCommits = employees.reduce((acc, e) => acc + e.productivity.gitCommits, 0);
+  const avgCompletion = Math.round(employees.reduce((acc, e) => acc + (e.productivity.tasksCompleted / e.productivity.tasksAssigned) * 100, 0) / employees.length);
+
+  return (
+    <div className="space-y-10 animate-in fade-in duration-500">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-blue-600 p-8 rounded-[2.5rem] text-white shadow-xl shadow-blue-100 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-700">
+            <Award size={120} />
+          </div>
+          <p className="text-blue-100 text-[10px] font-black uppercase tracking-widest mb-1 relative z-10">متوسط نقاط التأثير</p>
+          <h3 className="text-4xl font-black relative z-10">{avgImpact}%</h3>
+          <p className="text-xs text-blue-200 mt-4 relative z-10 font-bold flex items-center gap-2">
+            <TrendingUp size={14} /> أداء الفريق فوق المستهدف بـ 4%
+          </p>
+        </div>
+        <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-700">
+            <GitCommit size={120} />
+          </div>
+          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1 relative z-10">إجمالي الالتزامات (Git Commits)</p>
+          <h3 className="text-4xl font-black relative z-10">{totalCommits.toLocaleString()}</h3>
+          <p className="text-xs text-emerald-400 mt-4 relative z-10 font-bold flex items-center gap-2">
+            <Activity size={14} /> نشاط عالي في الفروع الرئيسية
+          </p>
+        </div>
+        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform duration-700">
+            <Target size={120} />
+          </div>
+          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1 relative z-10">معدل إنجاز المهام</p>
+          <h3 className="text-4xl font-black text-slate-800 relative z-10">{avgCompletion}%</h3>
+          <p className="text-xs text-indigo-600 mt-4 relative z-10 font-bold flex items-center gap-2">
+            <CheckCircle2 size={14} /> التزام ممتاز بالجدول الزمني
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm">
+          <div className="flex justify-between items-center mb-10">
+            <div>
+              <h3 className="text-lg font-black text-slate-800 flex items-center gap-3">
+                <BarChartIcon size={22} className="text-blue-600" /> تحليل مقارن لنقاط التأثير
+              </h3>
+              <p className="text-xs text-slate-400 font-bold mt-1">Impact Score vs. Task Completion</p>
+            </div>
+          </div>
+          <div className="h-[350px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={performanceData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 'bold'}} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} dx={-10} />
+                <Tooltip 
+                  cursor={{fill: '#f8fafc'}}
+                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }} 
+                />
+                <Bar dataKey="impact" name="نقطة التأثير" radius={[10, 10, 0, 0]}>
+                  {performanceData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+                <Bar dataKey="completion" name="معدل الإنجاز" fill="#e2e8f0" radius={[10, 10, 0, 0]} />
+                <Legend iconType="circle" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm">
+          <div className="flex justify-between items-center mb-10">
+            <div>
+              <h3 className="text-lg font-black text-slate-800 flex items-center gap-3">
+                <GitBranch size={22} className="text-indigo-600" /> نشاط المطورين (Commits)
+              </h3>
+              <p className="text-xs text-slate-400 font-bold mt-1">معدل الالتزام الكودي الشهري لكل موظف</p>
+            </div>
+          </div>
+          <div className="h-[350px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={performanceData} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                <XAxis type="number" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} />
+                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10, fontWeight: 'bold'}} dx={-5} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }} 
+                />
+                <Bar dataKey="commits" name="عدد الالتزامات" fill="#6366f1" radius={[0, 10, 10, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-slate-50 p-8 rounded-[3rem] border border-slate-100">
+        <h3 className="text-sm font-black text-slate-800 mb-8 flex items-center gap-3">
+          <Zap size={20} className="text-amber-500" /> قائمة الكفاءات المتميزة (Top Performers)
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {employees.sort((a, b) => b.productivity.impactScore - a.productivity.impactScore).map((emp, i) => (
+            <div key={emp.id} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-5 hover:border-blue-300 transition-all group">
+              <div className="relative">
+                <img src={`https://picsum.photos/seed/${emp.id}/64/64`} className="w-14 h-14 rounded-2xl object-cover" />
+                <div className="absolute -top-2 -right-2 w-7 h-7 bg-amber-400 text-white rounded-xl flex items-center justify-center font-black text-xs shadow-lg border-2 border-white">
+                  #{i + 1}
+                </div>
+              </div>
+              <div>
+                <p className="font-black text-slate-800 group-hover:text-blue-600 transition-colors">{emp.name}</p>
+                <p className="text-[10px] text-slate-400 font-bold uppercase mb-2">{emp.role}</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1">
+                    <Star size={10} className="text-amber-400 fill-amber-400" />
+                    <span className="text-[10px] font-black text-slate-700">{emp.productivity.impactScore}</span>
+                  </div>
+                  <div className="w-px h-3 bg-slate-100"></div>
+                  <div className="flex items-center gap-1">
+                    <CheckCircle2 size={10} className="text-emerald-500" />
+                    <span className="text-[10px] font-black text-slate-700">{emp.productivity.tasksCompleted}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
@@ -588,9 +777,7 @@ const PayrollSection = ({ employees }: { employees: Employee[] }) => {
           </thead>
           <tbody className="divide-y divide-slate-100">
             {employees.map((emp) => {
-              // Fix: Added type assertion to resolve 'unknown' type error in reduce function
               const totalAll = (Object.values(emp.allowances) as number[]).reduce((a, b) => a + b, 0);
-              // Fix: Added type assertion to resolve 'unknown' type error in reduce function
               const totalDed = (Object.values(emp.deductions) as number[]).reduce((a, b) => a + b, 0);
               const net = emp.salary + totalAll - totalDed;
               
@@ -623,7 +810,6 @@ const EmployeeProfile = ({ employee, onBack }: { employee: Employee, onBack: () 
   const [editingSkillIndex, setEditingSkillIndex] = useState<number | null>(null);
   const [skillInputValue, setSkillInputValue] = useState('');
   
-  // Leave Management State
   const [userLeaves, setUserLeaves] = useState<LeaveRequest[]>(mockLeaves.filter(l => l.employeeId === employee.id));
   const [isAddingLeave, setIsAddingLeave] = useState(false);
 
@@ -695,17 +881,14 @@ const EmployeeProfile = ({ employee, onBack }: { employee: Employee, onBack: () 
                    </div>
                    <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
                       <p className="text-[10px] text-emerald-400 font-bold uppercase mb-1">مجموع البدلات</p>
-                      {/* Fix: Added type assertion to resolve 'unknown' type error in reduce function */}
                       <p className="text-sm font-black text-emerald-700">{(Object.values(employee.allowances) as number[]).reduce((a, b) => a + b, 0).toLocaleString()} ر.س</p>
                    </div>
                    <div className="p-4 bg-rose-50 rounded-2xl border border-rose-100">
                       <p className="text-[10px] text-rose-400 font-bold uppercase mb-1">الاستقطاعات</p>
-                      {/* Fix: Added type assertion to resolve 'unknown' type error in reduce function */}
                       <p className="text-sm font-black text-rose-700">{(Object.values(employee.deductions) as number[]).reduce((a, b) => a + b, 0).toLocaleString()} ر.س</p>
                    </div>
                    <div className="p-4 bg-blue-600 rounded-2xl text-white shadow-lg">
                       <p className="text-[10px] text-blue-100 font-bold uppercase mb-1">الصافي الشهري</p>
-                      {/* Fix: Added type assertions to ensure operands are numbers in arithmetic expression */}
                       <p className="text-sm font-black">{(employee.salary + (Object.values(employee.allowances) as number[]).reduce((a, b) => a + b, 0) - (Object.values(employee.deductions) as number[]).reduce((a, b) => a + b, 0)).toLocaleString()} ر.س</p>
                    </div>
                 </div>
@@ -904,7 +1087,7 @@ const EmployeeProfile = ({ employee, onBack }: { employee: Employee, onBack: () 
                           onKeyDown={(e) => e.key === 'Enter' && handleAddSkill()}
                           className="text-xs font-bold text-slate-700 outline-none w-28"
                         />
-                        <button onClick={handleAddSkill} className="p-1 bg-emerald-500 text-white rounded-lg"><Check size={12}/></button>
+                        <button onClick={handleAddSkill} className="p-1 bg-emerald-50 text-white rounded-lg"><Check size={12}/></button>
                         <button onClick={() => setIsAddingSkill(false)} className="p-1 bg-slate-100 text-slate-400 rounded-lg"><X size={12}/></button>
                       </div>
                     )}
@@ -991,12 +1174,12 @@ const LeavesSection = () => (
 );
 
 const Team = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'directory' | 'payroll' | 'leaves'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'directory' | 'payroll' | 'leaves' | 'performance'>('overview');
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [employeesList, setEmployeesList] = useState<Employee[]>(mockEmployeesData);
 
   const toggleEmployeeStatus = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // منع فتح الملف الشخصي عند النقر على التبديل
+    e.stopPropagation(); 
     setEmployeesList(prev => prev.map(emp => {
       if (emp.id === id) {
         return { ...emp, status: emp.status === 'نشط' ? 'غير نشط' : 'نشط' };
@@ -1007,16 +1190,13 @@ const Team = () => {
 
   const stats = useMemo(() => {
     const totalPayroll = employeesList.reduce((acc, emp) => {
-      // Fix: Added type assertion to resolve 'unknown' type error in reduce function
       const totalAll = (Object.values(emp.allowances) as number[]).reduce((a, b) => a + b, 0);
-      // Fix: Added type assertion to resolve 'unknown' type error in reduce function
       const totalDed = (Object.values(emp.deductions) as number[]).reduce((a, b) => a + b, 0);
-      // Fix: Ensured operands are numbers to resolve arithmetic operation error
       return acc + (emp.salary + totalAll - totalDed);
     }, 0);
 
     return {
-      workforce: employeesList.length + 22,
+      workforce: employeesList.length,
       turnover: '4.2%',
       pendingLeaves: mockLeaves.filter(l => l.status === 'pending').length,
       payrollCost: totalPayroll
@@ -1054,10 +1234,11 @@ const Team = () => {
       <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
         <div className="flex border-b border-slate-100 overflow-x-auto no-scrollbar bg-slate-50/50">
           {[
-            { id: 'overview', label: 'لوحة التحكم (Dashboard)', icon: PieChart },
-            { id: 'directory', label: 'دليل الموظفين الكامل', icon: Users },
-            { id: 'payroll', label: 'مسير الرواتب و WPS', icon: FileSpreadsheet },
-            { id: 'leaves', label: 'الإجازات والغياب', icon: Calendar },
+            { id: 'overview', label: 'لوحة التحكم', icon: PieChart },
+            { id: 'performance', label: 'تحليلات الأداء', icon: Award },
+            { id: 'directory', label: 'دليل الموظفين', icon: Users },
+            { id: 'payroll', label: 'مسير الرواتب', icon: FileSpreadsheet },
+            { id: 'leaves', label: 'الإجازات', icon: Calendar },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -1080,6 +1261,7 @@ const Team = () => {
           ) : (
             <>
               {activeTab === 'overview' && <HROverviewSection />}
+              {activeTab === 'performance' && <PerformanceSection employees={employeesList} />}
               {activeTab === 'directory' && <EmployeesTable employees={employeesList} onSelect={setSelectedEmployee} onToggleStatus={toggleEmployeeStatus} />}
               {activeTab === 'payroll' && <PayrollSection employees={employeesList} />}
               {activeTab === 'leaves' && <LeavesSection />}

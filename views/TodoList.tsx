@@ -26,7 +26,9 @@ import {
   Sparkles,
   Play,
   Square,
-  Timer
+  Timer,
+  Settings2,
+  Palette
 } from 'lucide-react';
 
 interface TodoTask {
@@ -37,8 +39,10 @@ interface TodoTask {
   priority: 'low' | 'medium' | 'high';
   dueDate: string;
   completed: boolean;
-  trackedHours: number; // الساعات الإجمالية المسجلة
+  trackedHours: number; 
 }
+
+type CategoryType = 'عام' | 'مشروع' | 'عميل' | 'شخصي';
 
 const initialTasks: TodoTask[] = [
   { id: '1', title: 'مراجعة عقد شركة المراعي', category: 'عميل', priority: 'high', dueDate: '2023-11-25', completed: false, description: 'تحتاج مراجعة دقيقة من القسم القانوني', trackedHours: 2.5 },
@@ -52,6 +56,13 @@ const initialTasks: TodoTask[] = [
   { id: '9', title: 'تحليل تكاليف الحوسبة السحابية', category: 'مشروع', priority: 'medium', dueDate: '2023-12-10', completed: false, trackedHours: 0 },
 ];
 
+const defaultCategoryColors: Record<CategoryType, string> = {
+  'عام': 'slate',
+  'مشروع': 'blue',
+  'عميل': 'emerald',
+  'شخصي': 'indigo'
+};
+
 type GroupMode = 'flat' | 'priority' | 'date';
 
 const TodoList = () => {
@@ -62,12 +73,17 @@ const TodoList = () => {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDate, setNewTaskDate] = useState(new Date().toISOString().split('T')[0]);
   const [editingTask, setEditingTask] = useState<TodoTask | null>(null);
+  const [isCategorySettingsOpen, setIsCategorySettingsOpen] = useState(false);
+  
+  const [categoryColors, setCategoryColors] = useState<Record<CategoryType, string>>(() => {
+    const saved = localStorage.getItem('todo_category_colors');
+    return saved ? JSON.parse(saved) : defaultCategoryColors;
+  });
 
   // Time Tracking State
   const [activeTimers, setActiveTimers] = useState<Record<string, number>>({}); 
   const [currentTime, setCurrentTime] = useState(Date.now());
 
-  // التحديث اللحظي للعدادات النشطة
   useEffect(() => {
     let interval: any;
     if (Object.keys(activeTimers).length > 0) {
@@ -78,9 +94,12 @@ const TodoList = () => {
     return () => clearInterval(interval);
   }, [activeTimers]);
 
+  useEffect(() => {
+    localStorage.setItem('todo_category_colors', JSON.stringify(categoryColors));
+  }, [categoryColors]);
+
   const handleToggleTimer = (taskId: string) => {
     if (activeTimers[taskId]) {
-      // إيقاف المؤقت وحساب الوقت
       const startTime = activeTimers[taskId];
       const elapsedMs = Date.now() - startTime;
       const elapsedHours = elapsedMs / (1000 * 60 * 60);
@@ -93,7 +112,6 @@ const TodoList = () => {
       delete newTimers[taskId];
       setActiveTimers(newTimers);
     } else {
-      // بدء مؤقت جديد
       setActiveTimers(prev => ({ ...prev, [taskId]: Date.now() }));
     }
   };
@@ -107,7 +125,6 @@ const TodoList = () => {
   };
 
   const toggleTask = (id: string) => {
-    // إيقاف المؤقت إذا تم إكمال المهمة
     if (activeTimers[id]) handleToggleTimer(id);
     setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
   };
@@ -143,6 +160,10 @@ const TodoList = () => {
   const updateTask = (updatedTask: TodoTask) => {
     setTasks(tasks.map(t => t.id === updatedTask.id ? updatedTask : t));
     setEditingTask(null);
+  };
+
+  const updateCategoryColor = (cat: CategoryType, color: string) => {
+    setCategoryColors(prev => ({ ...prev, [cat]: color }));
   };
 
   const filteredTasks = useMemo(() => {
@@ -191,6 +212,7 @@ const TodoList = () => {
 
   const TaskItem = ({ task }: { task: TodoTask; key?: string }) => {
     const isTimerRunning = !!activeTimers[task.id];
+    const catColor = categoryColors[task.category] || 'slate';
     
     return (
       <div 
@@ -224,7 +246,7 @@ const TodoList = () => {
                 }`}>
                   <AlertCircle size={10} /> {task.priority === 'high' ? 'عالية' : task.priority === 'medium' ? 'متوسطة' : 'منخفضة'}
                 </span>
-                <span className="text-[10px] text-slate-400 font-bold flex items-center gap-1 shrink-0">
+                <span className={`text-[10px] font-black flex items-center gap-1 shrink-0 px-2 py-0.5 rounded-lg border bg-${catColor}-50 text-${catColor}-600 border-${catColor}-100`}>
                   <Tag size={10} /> {task.category}
                 </span>
                 <span className={`text-[10px] font-bold flex items-center gap-1 shrink-0 ${
@@ -237,7 +259,6 @@ const TodoList = () => {
         </div>
 
         <div className="flex items-center justify-between sm:justify-end gap-6 shrink-0">
-          {/* Time Tracking Control */}
           <div className="flex items-center gap-3 bg-slate-100/50 p-1.5 rounded-xl border border-slate-200/50">
              <div className="text-right">
                 <p className="text-[8px] text-slate-400 font-black uppercase tracking-tighter">وقت العمل</p>
@@ -285,7 +306,14 @@ const TodoList = () => {
           </h2>
           <p className="text-slate-500 text-sm font-medium">نظم جدولك الزمني، حدد أولوياتك، وتابع تقدمك التقني.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
+          <button 
+            onClick={() => setIsCategorySettingsOpen(true)}
+            className="p-3 bg-white border border-slate-200 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-2xl transition-all shadow-sm"
+            title="إعدادات الألوان"
+          >
+            <Palette size={20} />
+          </button>
           <div className="bg-white px-5 py-2 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-6">
              <div className="text-center">
                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-0.5">ساعات العمل</p>
@@ -467,6 +495,56 @@ const TodoList = () => {
           </div>
         </div>
       </div>
+
+      {/* Category Colors Settings Modal */}
+      {isCategorySettingsOpen && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
+           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300 border border-slate-100">
+              <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+                 <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-100">
+                       <Palette size={24} />
+                    </div>
+                    <div>
+                       <h4 className="text-xl font-black text-slate-800">تخصيص الألوان</h4>
+                       <p className="text-xs text-slate-500 font-medium mt-1">اختر ألواناً مميزة لكل فئة من المهام</p>
+                    </div>
+                 </div>
+                 <button onClick={() => setIsCategorySettingsOpen(false)} className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all">
+                   <X size={24} />
+                 </button>
+              </div>
+              
+              <div className="p-8 space-y-6">
+                {(['عام', 'مشروع', 'عميل', 'شخصي'] as CategoryType[]).map(cat => (
+                  <div key={cat} className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">فئة: {cat}</label>
+                    <div className="flex flex-wrap gap-2">
+                       {['blue', 'emerald', 'rose', 'amber', 'indigo', 'violet', 'slate', 'cyan'].map(color => (
+                         <button
+                           key={color}
+                           onClick={() => updateCategoryColor(cat, color)}
+                           className={`w-8 h-8 rounded-full transition-all border-2 ${
+                             categoryColors[cat] === color 
+                               ? `border-${color}-500 ring-2 ring-${color}-100 scale-110 shadow-sm` 
+                               : 'border-transparent opacity-60 hover:opacity-100'
+                           } bg-${color}-500`}
+                         />
+                       ))}
+                    </div>
+                  </div>
+                ))}
+
+                <button 
+                  onClick={() => setIsCategorySettingsOpen(false)}
+                  className="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl font-black text-sm shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all"
+                >
+                  حفظ التفضيلات
+                </button>
+              </div>
+           </div>
+        </div>
+      )}
 
       {editingTask && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">

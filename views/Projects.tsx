@@ -203,7 +203,7 @@ const Projects = () => {
             <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> قائمة المشاريع
           </button>
           <div className="flex gap-2">
-            <div className="flex bg-slate-100 p-1 rounded-xl">
+            <div className="flex bg-slate-100 p-1 rounded-xl shadow-inner">
                <button onClick={() => setTaskViewMode('list')} className={`px-4 py-1.5 rounded-lg text-xs font-black transition-all ${taskViewMode === 'list' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400'}`}>
                  <ListIcon size={14} className="inline ml-1" /> القائمة
                </button>
@@ -211,74 +211,83 @@ const Projects = () => {
                  <Trello size={14} className="inline ml-1" /> اللوحة
                </button>
             </div>
-            <button className="px-6 py-2 bg-blue-600 text-white rounded-xl text-xs font-black shadow-lg flex items-center gap-2">
+            <button className="px-6 py-2 bg-blue-600 text-white rounded-xl text-xs font-black shadow-lg flex items-center gap-2 hover:bg-blue-700 transition-all">
               <Edit3 size={16} /> تعديل المشروع
             </button>
           </div>
         </div>
 
-        {/* Optimized Project Hero Card */}
-        <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-sm overflow-hidden group">
+        {/* Enhanced Project Hero Card */}
+        <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-xl shadow-slate-200/40 overflow-hidden relative group">
+          {/* Background decorative element */}
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-l from-blue-600 via-indigo-500 to-emerald-500"></div>
+          
           <div className="grid grid-cols-1 lg:grid-cols-12">
-            {/* Primary Details Panel */}
-            <div className="lg:col-span-8 p-10 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-              <div className="relative z-10 space-y-10">
-                
-                {/* Name and Status Header */}
-                <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                  <div className="flex items-center gap-5">
-                    <div className="w-16 h-16 bg-blue-600 rounded-3xl flex items-center justify-center text-white shadow-2xl shadow-blue-500/30 animate-soft-float">
-                      <Briefcase size={32} />
+            {/* Primary Content Area */}
+            <div className="lg:col-span-8 p-12 relative">
+              <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/5 rounded-full -mr-40 -mt-40 blur-[100px]"></div>
+              
+              <div className="relative z-10 space-y-12">
+                {/* Identity Header */}
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-8">
+                  <div className="flex items-center gap-6">
+                    <div className="w-20 h-20 bg-blue-600 rounded-[2rem] flex items-center justify-center text-white shadow-2xl shadow-blue-500/30 animate-soft-float">
+                      <Briefcase size={40} />
                     </div>
                     <div>
-                      <h1 className="text-4xl font-black text-slate-900 tracking-tighter leading-tight mb-1">{selectedProject.name}</h1>
+                      <div className="flex items-center gap-3 mb-2">
+                        <h1 className="text-4xl font-black text-slate-900 tracking-tighter leading-tight">{selectedProject.name}</h1>
+                        <span className={`px-4 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                          selectedProject.status === ProjectStatus.IN_PROGRESS ? 'bg-blue-50 text-blue-600 border-blue-100' : 
+                          selectedProject.status === ProjectStatus.COMPLETED ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                          'bg-slate-50 text-slate-500 border-slate-100'
+                        }`}>
+                          {selectedProject.status}
+                        </span>
+                      </div>
                       <p className="text-slate-400 font-bold flex items-center gap-2">
-                         <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span> {selectedProject.client}
+                         <span className="w-2 h-2 rounded-full bg-blue-400"></span> {selectedProject.client} • عميل بلاتيني
                       </p>
                     </div>
                   </div>
-                  <div className="pt-2">
-                    <span className={`px-6 py-2.5 rounded-2xl text-xs font-black border shadow-sm transition-all ${
-                      selectedProject.status === ProjectStatus.IN_PROGRESS ? 'bg-blue-50 text-blue-600 border-blue-100 shadow-blue-500/5' : 
-                      selectedProject.status === ProjectStatus.COMPLETED ? 'bg-emerald-50 text-emerald-600 border-emerald-100 shadow-emerald-500/5' :
-                      'bg-slate-50 text-slate-500 border-slate-100'
-                    }`}>
-                      {selectedProject.status}
-                    </span>
-                  </div>
                 </div>
 
-                {/* Info Tiles Row */}
+                {/* Key Metrics Tiles */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Delivery Date Tile */}
-                  <div className="bg-slate-50/50 p-8 rounded-[2.5rem] border border-slate-100 flex items-center gap-6 group/tile hover:bg-white hover:shadow-md transition-all">
-                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm border border-slate-100 group-hover/tile:scale-110 transition-transform">
-                      <CalendarDays size={28} />
+                  {/* Delivery Timeline Tile */}
+                  <div className="bg-slate-50/50 p-8 rounded-[2.5rem] border border-slate-100 flex items-center gap-6 group/tile hover:bg-white hover:shadow-lg transition-all duration-500">
+                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm border border-slate-100 group-hover/tile:scale-110 group-hover/tile:bg-blue-600 group-hover/tile:text-white transition-all">
+                      <CalendarDays size={32} />
                     </div>
                     <div>
-                      <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">موعد التسليم المتوقع</p>
-                      <p className="text-xl font-black text-slate-800 tracking-tight">{selectedProject.deadline}</p>
+                      <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1.5">تاريخ التسليم النهائي</p>
+                      <p className="text-2xl font-black text-slate-800 tracking-tight">{selectedProject.deadline}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                         <p className="text-[10px] text-blue-600 font-bold">باقي 45 يوماً على الموعد</p>
+                      </div>
                     </div>
                   </div>
                   
-                  {/* Progress Tile */}
-                  <div className="bg-slate-50/50 p-8 rounded-[2.5rem] border border-slate-100 flex flex-col justify-center group/tile hover:bg-white hover:shadow-md transition-all">
-                    <div className="flex justify-between items-center mb-4">
+                  {/* Progress Matrix Tile */}
+                  <div className="bg-slate-50/50 p-8 rounded-[2.5rem] border border-slate-100 flex flex-col justify-center group/tile hover:bg-white hover:shadow-lg transition-all duration-500">
+                    <div className="flex justify-between items-end mb-5">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-emerald-600 shadow-sm border border-slate-100 group-hover/tile:scale-110 transition-transform">
-                          <Target size={20} />
+                        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm border border-slate-100 group-hover/tile:scale-110 group-hover/tile:bg-emerald-600 group-hover/tile:text-white transition-all">
+                          <Target size={24} />
                         </div>
-                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">معدل الإنجاز</p>
+                        <div>
+                          <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-0.5">نسبة الإنجاز الفعلية</p>
+                          <p className="text-2xl font-black text-emerald-600">{selectedProject.progress}%</p>
+                        </div>
                       </div>
-                      <span className="text-xl font-black text-emerald-600">{selectedProject.progress}%</span>
                     </div>
-                    <div className="h-3 w-full bg-slate-200 rounded-full overflow-hidden shadow-inner p-0.5">
+                    <div className="h-3 w-full bg-slate-200 rounded-full overflow-hidden shadow-inner p-0.5 relative">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${selectedProject.progress}%` }}
                         transition={{ duration: 1.5, ease: "easeOut" }}
-                        className="h-full bg-gradient-to-l from-emerald-500 to-teal-400 rounded-full shadow-sm"
+                        className="h-full bg-gradient-to-l from-emerald-500 to-teal-400 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.3)]"
                       />
                     </div>
                   </div>
@@ -286,15 +295,16 @@ const Projects = () => {
               </div>
             </div>
 
-            {/* Financial Quick Panel */}
-            <div className="lg:col-span-4 bg-slate-900 p-10 text-white relative overflow-hidden flex flex-col justify-between border-r border-white/5">
-              <div className="absolute top-0 right-0 p-8 opacity-5"><DollarSign size={180} /></div>
+            {/* Sidebar Stats Area */}
+            <div className="lg:col-span-4 bg-slate-900 p-12 text-white relative overflow-hidden flex flex-col justify-between border-r border-white/5">
+              <div className="absolute top-0 right-0 p-8 opacity-5"><TrendingUp size={240} /></div>
               <div className="relative z-10">
-                <p className="text-[10px] text-blue-400 font-black uppercase tracking-widest mb-2 opacity-60">الربحية الاستراتيجية</p>
-                <h3 className="text-5xl font-black tracking-tighter">{selectedProject.profit.toLocaleString()} <span className="text-lg font-bold opacity-30">ر.س</span></h3>
+                <p className="text-[10px] text-blue-400 font-black uppercase tracking-widest mb-3 opacity-60">الأرباح التشغيلية المتوقعة</p>
+                <h3 className="text-5xl font-black tracking-tighter">{selectedProject.profit.toLocaleString()} <span className="text-lg font-bold opacity-30 mr-2">ر.س</span></h3>
               </div>
-              <div className="relative z-10 mt-12 space-y-6">
-                <div className="space-y-3">
+
+              <div className="relative z-10 mt-12 space-y-8">
+                <div className="space-y-4">
                   <div className="flex justify-between items-end">
                     <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">الميزانية المستهلكة</p>
                     <p className="text-sm font-black text-blue-400">{selectedProject.actualCost.toLocaleString()} ر.س</p>
@@ -303,13 +313,21 @@ const Projects = () => {
                     <div className="h-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.6)] rounded-full" style={{ width: `${Math.min((selectedProject.actualCost / selectedProject.budget) * 100, 100)}%` }}></div>
                   </div>
                   <div className="flex justify-between items-center text-[10px] font-bold text-slate-500">
-                    <span>إجمالي الميزانية: {selectedProject.budget.toLocaleString()} ر.س</span>
-                    <span>{Math.round((selectedProject.actualCost / selectedProject.budget) * 100)}%</span>
+                    <span>الإجمالي المعتمد: {selectedProject.budget.toLocaleString()} ر.س</span>
+                    <span className="text-slate-300">{Math.round((selectedProject.actualCost / selectedProject.budget) * 100)}%</span>
                   </div>
                 </div>
-                <button className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase hover:bg-white/10 transition-all flex items-center justify-center gap-2">
-                   <FilePieChart size={16} className="text-blue-400" /> تحليل التكاليف التفصيلي
-                </button>
+                
+                <div className="pt-6 border-t border-white/5 grid grid-cols-2 gap-4">
+                   <div>
+                      <p className="text-[9px] text-slate-500 font-black uppercase mb-1">فريق العمل</p>
+                      <p className="text-sm font-black">{selectedProject.team.length} أعضاء</p>
+                   </div>
+                   <div className="text-left">
+                      <p className="text-[9px] text-slate-500 font-black uppercase mb-1">ساعات العمل</p>
+                      <p className="text-sm font-black text-emerald-400">{selectedProject.totalHours || 0} h</p>
+                   </div>
+                </div>
               </div>
             </div>
           </div>
@@ -326,7 +344,7 @@ const Projects = () => {
                  {selectedProject.milestones.map((ms, i) => (
                     <div key={ms.id} className="flex flex-col items-center group">
                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-500 shadow-lg ${
-                         ms.completed ? 'bg-emerald-500 text-white' : 'bg-white border-2 border-slate-200 text-slate-400 group-hover:border-blue-400'
+                         ms.completed ? 'bg-emerald-500 text-white shadow-emerald-200' : 'bg-white border-2 border-slate-200 text-slate-400 group-hover:border-blue-400'
                        }`}>
                           {ms.completed ? <CheckCircle2 size={20} /> : <span className="text-xs font-black">{i+1}</span>}
                        </div>
@@ -347,7 +365,7 @@ const Projects = () => {
                 <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
                    <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
                       <h3 className="font-black text-slate-800 flex items-center gap-2"><Layers size={20} className="text-blue-600" /> قائمة المهام التفصيلية</h3>
-                      <button className="text-[10px] font-black text-blue-600 bg-blue-50 px-4 py-2 rounded-xl hover:bg-blue-100 transition-all">+ مهمة تقنية</button>
+                      <button className="text-[10px] font-black text-blue-600 bg-blue-50 px-4 py-2 rounded-xl hover:bg-blue-100 transition-all shadow-sm">+ مهمة تقنية</button>
                    </div>
                    <div className="p-4 space-y-2">
                       {selectedProject.tasks.map(task => {
